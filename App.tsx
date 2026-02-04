@@ -7,18 +7,39 @@ const App: React.FC = () => {
   const [noCount, setNoCount] = useState(0);
   const [yesPressed, setYesPressed] = useState(false);
 
-  // Calculates the text for the "No" button based on clicks
-  const getNoButtonText = () => {
-    return PHRASES[Math.min(noCount, PHRASES.length - 1)];
-  };
+  // --- CONFIGURACIÓN TELEGRAM (CallMeBot) ---
+  // IMPORTANTE: Para recibir el mensaje automático, primero debes iniciar el bot.
+  // 1. Busca en Telegram: @CallMeBot_txtbot
+  // 2. Dale a "Iniciar" o envía el mensaje: /start
+  const TELEGRAM_USERNAME = "@iangiane"; 
 
   const handleNoClick = () => {
     setNoCount(noCount + 1);
   };
 
+  const getNoButtonText = () => {
+    return PHRASES[Math.min(noCount, PHRASES.length - 1)];
+  };
+
   const handleYesClick = () => {
     setYesPressed(true);
     triggerConfetti();
+    sendTelegramNotification();
+  };
+
+  const sendTelegramNotification = async () => {
+    const text = "¡Siii! Ella dijo que SÍ 💖🐻 (Confirmado desde la App)";
+    // Usamos el servicio gratuito de CallMeBot para Telegram
+    const url = `https://api.callmebot.com/text.php?user=${TELEGRAM_USERNAME}&text=${encodeURIComponent(text)}`;
+
+    try {
+      // Usamos mode: 'no-cors' para disparar la petición sin esperar respuesta
+      // y evitar bloqueos de seguridad del navegador (CORS).
+      await fetch(url, { mode: 'no-cors' });
+      console.log("Notificación enviada a Telegram");
+    } catch (error) {
+      console.error("Error al intentar notificar:", error);
+    }
   };
 
   const triggerConfetti = () => {
@@ -38,7 +59,6 @@ const App: React.FC = () => {
       }
 
       const particleCount = 50 * (timeLeft / duration);
-      // since particles fall down, start a bit higher than random
       confetti({
         ...defaults,
         particleCount,
@@ -71,7 +91,7 @@ const App: React.FC = () => {
             <h1 className="text-4xl md:text-5xl font-bold text-pink-600 mb-4">
               ¡Siii! ¡Sabía que dirías que sí! ❤️
             </h1>
-            <p className="text-xl text-pink-800">
+            <p className="text-xl text-pink-800 mb-8">
               Eres mi persona favorita en el mundo.
             </p>
           </motion.div>
